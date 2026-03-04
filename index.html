@@ -792,13 +792,14 @@ function parseCSV(text) {
     const area       = cols[1]?.trim() || '';
     const pref       = cols[2]?.trim() || '';
     const city       = cols[3]?.trim() || '';
-    const dan        = cols[4]?.trim() || '';
-    const releaseDate= cols[5]?.trim() || '';
-    const code       = cols[6]?.trim() || '';
-    const lot        = cols[7]?.trim() || '';
-    const acquireDate= cols[8]?.trim() || '';
-    const acquireYear= cols[9]?.trim() || '';
-    const transfer   = cols[10]?.trim() || '';
+    const imageUrl   = cols[4]?.trim() || '';
+    const dan        = cols[5]?.trim() || '';
+    const releaseDate= cols[6]?.trim() || '';
+    const code       = cols[7]?.trim() || '';
+    const lot        = cols[8]?.trim() || '';
+    const acquireDate= cols[9]?.trim() || '';
+    const acquireYear= cols[10]?.trim() || '';
+    const transfer   = cols[11]?.trim() || '';
 
     if (!no || !pref) continue;
 
@@ -806,6 +807,7 @@ function parseCSV(text) {
       no: parseInt(no) || 0,
       area, pref, city, dan,
       releaseDate, code, lot,
+      imageUrl,
       acquireDate, acquireYear,
       transfer: transfer === '〇',
       acquired: acquireDate !== '',
@@ -947,8 +949,8 @@ function renderCards() {
 
 function gridCard(c) {
   const emoji = getEmoji(c.area);
-  const imgSrc = `images/${c.pref}/${c.city}.png`;
-  const imgHtml = `<img src="${imgSrc}" alt="${c.city}" onerror="this.style.display='none';this.parentElement.dataset.noimg='1'">`;
+  const imgSrc = c.imageUrl || '';
+  const imgHtml = imgSrc ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.style.display='none'">` : '';
   const transferMark = c.transfer ? `<div class="transfer-mark" title="譲渡">TR</div>` : '';
   const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '';
   const lotBadge = c.lot ? `<span class="badge">LOT:${c.lot}</span>` : '';
@@ -968,7 +970,7 @@ function gridCard(c) {
 
 function listCard(c) {
   const emoji = getEmoji(c.area);
-  const imgSrc = `images/${c.pref}/${c.city}.png`;
+  const imgSrc = c.imageUrl || '';
   const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '<span class="badge">未取得</span>';
   const transferMark = c.transfer ? `<div class="transfer-mark" style="position:relative;top:unset;right:unset;width:18px;height:18px;font-size:0.5rem;flex-shrink:0" title="譲渡">TR</div>` : '';
 
@@ -976,7 +978,7 @@ function listCard(c) {
     <div class="list-item" style="position:relative">
       ${c.transfer ? `<div class="transfer-mark">TR</div>` : ''}
       <div class="list-circle">
-        <img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;padding:4px;filter:brightness(0.85)" onerror="this.style.display='none'">
+        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;padding:4px;filter:brightness(0.85)" onerror="this.style.display='none'">` : ''}
         <span style="position:absolute;font-size:1rem">${emoji}</span>
       </div>
       <div>
