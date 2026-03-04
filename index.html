@@ -397,6 +397,25 @@
   .card-item:hover::before { opacity: 1; }
 
   /* Manhole circle design */
+  .transfer-mark {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #000;
+    font-size: 0.55rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    box-shadow: 0 0 8px rgba(0,255,136,0.5);
+    z-index: 2;
+  }
+
   .card-circle {
     width: 80px;
     height: 80px;
@@ -410,8 +429,19 @@
     position: relative;
     background: radial-gradient(circle at 30% 30%, var(--surface2), var(--bg));
     transition: border-color 0.3s;
+    overflow: hidden;
   }
 
+  .card-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 8px;
+    filter: brightness(0.85) saturate(0.7);
+    transition: filter 0.3s;
+  }
+
+  .card-item:hover .card-circle img { filter: brightness(1.1) saturate(1); }
   .card-item:hover .card-circle { border-color: var(--accent); }
 
   .card-circle::after {
@@ -421,31 +451,40 @@
     border-radius: 50%;
     border: 1px solid var(--border);
     transition: border-color 0.3s;
+    pointer-events: none;
   }
 
   .card-item:hover .card-circle::after { border-color: rgba(0,212,255,0.3); }
 
-  .card-number {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--accent);
-    letter-spacing: 0.08em;
-    margin-bottom: 2px;
-    text-align: center;
-  }
-
   .card-city {
     font-size: 0.88rem;
     font-weight: 500;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     text-align: center;
+  }
+
+  .card-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin-bottom: 2px;
   }
 
   .card-date {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     color: var(--muted);
     text-align: center;
+  }
+
+  .card-acquire-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 3px;
   }
 
   .card-badges {
@@ -468,12 +507,6 @@
     border-color: rgba(0,212,255,0.4);
     color: var(--accent);
     background: rgba(0,212,255,0.05);
-  }
-
-  .badge.transfer {
-    border-color: rgba(0,255,136,0.4);
-    color: var(--green);
-    background: rgba(0,255,136,0.05);
   }
 
   /* List view */
@@ -622,7 +655,7 @@
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="value" id="stat-total">—</div>
-      <div class="label">総収集枚数</div>
+      <div class="label">総数</div>
     </div>
     <div class="hero-stat">
       <div class="value" id="stat-acquired">—</div>
@@ -914,38 +947,45 @@ function renderCards() {
 
 function gridCard(c) {
   const emoji = getEmoji(c.area);
-  const acqBadge = c.acquired ? `<span class="badge acquired">取得済 ${c.acquireYear || ''}</span>` : '';
-  const trnBadge = c.transfer ? `<span class="badge transfer">譲渡</span>` : '';
+  const imgSrc = `images/${c.pref}/${c.city}.png`;
+  const imgHtml = `<img src="${imgSrc}" alt="${c.city}" onerror="this.style.display='none';this.parentElement.dataset.noimg='1'">`;
+  const transferMark = c.transfer ? `<div class="transfer-mark" title="譲渡">TR</div>` : '';
+  const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '';
   const lotBadge = c.lot ? `<span class="badge">LOT:${c.lot}</span>` : '';
+  const acquireStr = c.acquireDate ? c.acquireDate : '';
 
   return `
     <div class="card-item">
-      <div class="card-circle">${emoji}</div>
-      <div class="card-number">No.${c.no} · ${c.code}</div>
+      ${transferMark}
+      <div class="card-circle">${imgHtml}<span class="card-fallback-emoji" style="position:absolute">${emoji}</span></div>
       <div class="card-city">${c.city}</div>
-      <div class="card-date">${c.releaseDate ? '第' + c.dan + '弾' : '—'}</div>
-      <div class="card-badges">
-        ${acqBadge}${trnBadge}${lotBadge}
-      </div>
+      <div class="card-code">${c.code} · 第${c.dan}弾</div>
+      <div class="card-date">${c.releaseDate || '—'}</div>
+      ${acquireStr ? `<div class="card-acquire-date">📅 ${acquireStr}</div>` : ''}
+      <div class="card-badges">${acqBadge}${lotBadge}</div>
     </div>`;
 }
 
 function listCard(c) {
   const emoji = getEmoji(c.area);
+  const imgSrc = `images/${c.pref}/${c.city}.png`;
   const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '<span class="badge">未取得</span>';
-  const trnBadge = c.transfer ? `<span class="badge transfer">譲渡</span>` : '';
+  const transferMark = c.transfer ? `<div class="transfer-mark" style="position:relative;top:unset;right:unset;width:18px;height:18px;font-size:0.5rem;flex-shrink:0" title="譲渡">TR</div>` : '';
 
   return `
-    <div class="list-item">
-      <div class="list-circle">${emoji}</div>
+    <div class="list-item" style="position:relative">
+      ${c.transfer ? `<div class="transfer-mark">TR</div>` : ''}
+      <div class="list-circle">
+        <img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;padding:4px;filter:brightness(0.85)" onerror="this.style.display='none'">
+        <span style="position:absolute;font-size:1rem">${emoji}</span>
+      </div>
       <div>
         <div class="list-city">${c.city}</div>
         <div class="list-meta">
-          <span>No.${c.no}</span>
           <span>${c.code}</span>
           <span>第${c.dan}弾</span>
           <span>${c.releaseDate}</span>
-          ${acqBadge}${trnBadge}
+          ${acqBadge}
         </div>
       </div>
       <div class="list-right">
