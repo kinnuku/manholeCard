@@ -397,39 +397,11 @@
   .card-item:hover::before { opacity: 1; }
 
   /* Manhole circle design */
-  /* Card badges top corners */
-  .card-badge-tl {
-    position: absolute;
-    top: 7px;
-    left: 7px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.58rem;
-    padding: 2px 6px;
-    border: 1px solid rgba(0,212,255,0.5);
-    color: var(--accent);
-    background: rgba(0,212,255,0.1);
-    z-index: 2;
-    backdrop-filter: blur(4px);
-  }
-
-  .transfer-mark {
-    position: absolute;
-    top: 7px;
-    right: 7px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.58rem;
-    padding: 2px 6px;
-    border: 1px solid rgba(0,255,136,0.5);
-    color: var(--green);
-    background: rgba(0,255,136,0.1);
-    z-index: 2;
-    backdrop-filter: blur(4px);
-  }
-
-  /* Card image - rectangular, natural aspect ratio */
+  /* Card image */
   .card-img-wrap {
     width: 100%;
-    margin-bottom: 0.75rem;
+    max-height: 120px;
+    margin-bottom: 0.6rem;
     border: 1px solid var(--border);
     background: var(--bg);
     display: flex;
@@ -437,14 +409,14 @@
     justify-content: center;
     overflow: hidden;
     transition: border-color 0.3s;
-    min-height: 80px;
   }
 
   .card-item:hover .card-img-wrap { border-color: rgba(0,212,255,0.4); }
 
   .card-img-wrap img {
     width: 100%;
-    height: auto;
+    max-height: 120px;
+    object-fit: contain;
     display: block;
     filter: saturate(0.8);
     transition: filter 0.3s;
@@ -453,58 +425,61 @@
   .card-item:hover .card-img-wrap img { filter: saturate(1); }
 
   .card-img-wrap .card-emoji {
-    font-size: 2.5rem;
+    font-size: 2rem;
     padding: 1rem;
     color: var(--muted);
   }
 
-  /* Card text */
-  .card-title-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 4px;
+  /* Card info below image */
+  .card-info {
+    padding: 0 2px;
   }
 
   .card-city {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
+    margin-bottom: 2px;
   }
 
   .card-code {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.62rem;
     color: var(--muted);
+    margin-bottom: 2px;
   }
 
   .card-dan {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     color: var(--text);
-    text-align: center;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   .card-acquire-date {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.65rem;
     color: var(--accent);
-    text-align: center;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   .card-lot {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.62rem;
     color: var(--muted);
-    text-align: center;
+  }
+
+  /* Badges below card info */
+  .card-badges-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
   }
 
   .badge {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.58rem;
-    padding: 1px 5px;
+    padding: 2px 6px;
     border: 1px solid var(--border);
     color: var(--muted);
   }
@@ -513,6 +488,12 @@
     border-color: rgba(0,212,255,0.4);
     color: var(--accent);
     background: rgba(0,212,255,0.05);
+  }
+
+  .badge.transfer {
+    border-color: rgba(0,255,136,0.4);
+    color: var(--green);
+    background: rgba(0,255,136,0.05);
   }
 
   /* List view */
@@ -981,21 +962,20 @@ function gridCard(c) {
   const imgContent = imgSrc
     ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.outerHTML='<span class=\'card-emoji\'>${emoji}</span>'">`
     : `<span class="card-emoji">${emoji}</span>`;
-  const transferMark = c.transfer ? `<div class="transfer-mark">譲渡</div>` : '';
-  const acquiredMark = c.acquired ? `<div class="card-badge-tl">取得済</div>` : '';
+  const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '';
+  const trnBadge = c.transfer ? `<span class="badge transfer">譲渡</span>` : '';
 
   return `
     <div class="card-item">
-      ${acquiredMark}
-      ${transferMark}
       <div class="card-img-wrap">${imgContent}</div>
-      <div class="card-title-row">
-        <span class="card-city">${c.city}</span>
-        <span class="card-code">${c.code}</span>
+      <div class="card-info">
+        <div class="card-city">${c.city}</div>
+        <div class="card-code">${c.code}</div>
+        <div class="card-dan">第${c.dan}弾</div>
+        <div class="card-acquire-date">${c.acquireDate || '—'}</div>
+        ${c.lot ? `<div class="card-lot">${c.lot}</div>` : ''}
+        <div class="card-badges-row">${acqBadge}${trnBadge}</div>
       </div>
-      <div class="card-dan">第${c.dan}弾</div>
-      ${c.acquireDate ? `<div class="card-acquire-date">${c.acquireDate}</div>` : '<div class="card-acquire-date" style="color:var(--muted)">—</div>'}
-      ${c.lot ? `<div class="card-lot">LOT: ${c.lot}</div>` : ''}
     </div>`;
 }
 
