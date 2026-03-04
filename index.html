@@ -519,6 +519,7 @@
     flex-direction: column;
     gap: 4px;
     align-items: flex-end;
+    flex-shrink: 0;
   }
 
   .list-item:last-child { border-bottom: none; }
@@ -567,9 +568,10 @@
     font-size: 0.65rem;
     color: var(--muted);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
     align-items: center;
+    margin-top: 3px;
   }
 
   .list-right {
@@ -1012,27 +1014,25 @@ function gridCard(c) {
 function listCard(c) {
   const emoji = getEmoji(c.area);
   const imgSrc = c.imageUrl || '';
-  const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '<span class="badge">未取得</span>';
-  const transferMark = c.transfer ? `<div class="transfer-mark" style="position:relative;top:unset;right:unset;width:18px;height:18px;font-size:0.5rem;flex-shrink:0" title="譲渡">TR</div>` : '';
+  const acqBadge = c.acquired ? '<span class="badge acquired">取得済</span>' : '';
+  const trnBadge = c.transfer ? '<span class="badge transfer">譲渡</span>' : '';
+  const img = imgSrc
+    ? `<img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display='none'">`
+    : `<span style="font-size:1.2rem">${emoji}</span>`;
 
   return `
-    <div class="list-item" style="position:relative">
-      ${c.transfer ? `<div class="transfer-mark" style="top:50%;transform:translateY(-50%)">譲渡</div>` : ''}
-      <div class="list-thumb">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.outerHTML='<span style=\'font-size:1rem\'>${emoji}</span>'">` : `<span style="font-size:1rem">${emoji}</span>`}
-      </div>
+    <div class="list-item">
+      <div class="list-thumb">${img}</div>
       <div>
         <div class="list-city">${c.city}</div>
         <div class="list-meta">
           <span>${c.code}</span>
           <span>第${c.dan}弾</span>
-          ${acqBadge}
+          <span>${c.acquireDate || '—'}</span>
+          ${c.lot ? `<span>${c.lot}</span>` : ''}
         </div>
       </div>
-      <div class="list-right">
-        <div class="list-date">${c.acquireDate || '—'}</div>
-        ${c.lot ? `<div class="list-lot">LOT:${c.lot}</div>` : ''}
-      </div>
+      <div class="list-badges">${acqBadge}${trnBadge}</div>
     </div>`;
 }
 
