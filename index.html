@@ -397,86 +397,93 @@
   .card-item:hover::before { opacity: 1; }
 
   /* Manhole circle design */
+  /* Card badges top corners */
+  .card-badge-tl {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    border: 1px solid rgba(0,212,255,0.5);
+    color: var(--accent);
+    background: rgba(0,212,255,0.1);
+    z-index: 2;
+    backdrop-filter: blur(4px);
+  }
+
   .transfer-mark {
     position: absolute;
     top: 7px;
     right: 7px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--green);
-    color: #000;
-    font-size: 0.55rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-family: 'Share Tech Mono', monospace;
-    box-shadow: 0 0 8px rgba(0,255,136,0.5);
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    border: 1px solid rgba(0,255,136,0.5);
+    color: var(--green);
+    background: rgba(0,255,136,0.1);
     z-index: 2;
+    backdrop-filter: blur(4px);
   }
 
-  .card-circle {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 0.75rem;
-    border: 2px solid var(--border);
+  /* Card image - rectangular, natural aspect ratio */
+  .card-img-wrap {
+    width: 100%;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    position: relative;
-    background: radial-gradient(circle at 30% 30%, var(--surface2), var(--bg));
-    transition: border-color 0.3s;
     overflow: hidden;
+    transition: border-color 0.3s;
+    min-height: 80px;
   }
 
-  .card-circle img {
+  .card-item:hover .card-img-wrap { border-color: rgba(0,212,255,0.4); }
+
+  .card-img-wrap img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 8px;
-    filter: brightness(0.85) saturate(0.7);
+    height: auto;
+    display: block;
+    filter: saturate(0.8);
     transition: filter 0.3s;
   }
 
-  .card-item:hover .card-circle img { filter: brightness(1.1) saturate(1); }
-  .card-item:hover .card-circle { border-color: var(--accent); }
+  .card-item:hover .card-img-wrap img { filter: saturate(1); }
 
-  .card-circle::after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    transition: border-color 0.3s;
-    pointer-events: none;
+  .card-img-wrap .card-emoji {
+    font-size: 2.5rem;
+    padding: 1rem;
+    color: var(--muted);
   }
 
-  .card-item:hover .card-circle::after { border-color: rgba(0,212,255,0.3); }
+  /* Card text */
+  .card-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
 
   .card-city {
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    margin-bottom: 3px;
-    text-align: center;
   }
 
   .card-code {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--accent);
-    letter-spacing: 0.06em;
-    text-align: center;
-    margin-bottom: 2px;
+    font-size: 0.62rem;
+    color: var(--muted);
   }
 
-  .card-date {
+  .card-dan {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
+    font-size: 0.68rem;
+    color: var(--text);
     text-align: center;
+    margin-bottom: 3px;
   }
 
   .card-acquire-date {
@@ -484,15 +491,14 @@
     font-size: 0.65rem;
     color: var(--accent);
     text-align: center;
-    margin-top: 3px;
+    margin-bottom: 3px;
   }
 
-  .card-badges {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 6px;
+  .card-lot {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-align: center;
   }
 
   .badge {
@@ -689,7 +695,7 @@
       <option value="no">未取得のみ</option>
     </select>
     <select class="filter-select" id="sort-select">
-      <option value="no-asc">No順</option>
+      <option value="pref-asc">都道府県順（北から）</option>
       <option value="date-desc">取得日新しい順</option>
       <option value="date-asc">取得日古い順</option>
       <option value="pref-asc">都道府県順</option>
@@ -870,6 +876,16 @@ function updateFilters() {
     prefs.map(p => `<option value="${p}">${p}</option>`).join('');
 }
 
+
+const PREF_ORDER = [
+  '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+  '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+  '新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県',
+  '静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県',
+  '奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県',
+  '徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県',
+  '熊本県','大分県','宮崎県','鹿児島県','沖縄県'
+];
 function getFilteredCards() {
   const search = document.getElementById('search').value.toLowerCase();
   const area   = document.getElementById('filter-area').value;
@@ -890,11 +906,17 @@ function getFilteredCards() {
   });
 
   cards.sort((a, b) => {
-    if (sort === 'no-asc')    return a.no - b.no;
     if (sort === 'date-desc') return (b.acquireDate || '').localeCompare(a.acquireDate || '');
     if (sort === 'date-asc')  return (a.acquireDate || '').localeCompare(b.acquireDate || '');
-    if (sort === 'pref-asc')  return (a.pref || '').localeCompare(b.pref || '', 'ja');
-    return a.no - b.no;
+    if (sort === 'pref-asc') {
+      const ai = PREF_ORDER.indexOf(a.pref);
+      const bi = PREF_ORDER.indexOf(b.pref);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    }
+    // default: north to south
+    const ai = PREF_ORDER.indexOf(a.pref);
+    const bi = PREF_ORDER.indexOf(b.pref);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
   });
 
   return cards;
@@ -911,9 +933,15 @@ function renderCards() {
   }
 
   const byPref = groupBy(cards, c => c.pref || '未分類');
+  const sortedByPref = Object.fromEntries(
+    Object.entries(byPref).sort(([a], [b]) => {
+      const ai = PREF_ORDER.indexOf(a); const bi = PREF_ORDER.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    })
+  );
 
   if (currentView === 'grid') {
-    area.innerHTML = Object.entries(byPref).map(([pref, prefCards]) => {
+    area.innerHTML = Object.entries(sortedByPref).map(([pref, prefCards]) => {
       const areaName = prefCards[0]?.area || '';
       return `
         <div class="prefecture-section" id="sec-${encodeId(pref)}">
@@ -929,7 +957,7 @@ function renderCards() {
         </div>`;
     }).join('');
   } else {
-    area.innerHTML = Object.entries(byPref).map(([pref, prefCards]) => {
+    area.innerHTML = Object.entries(sortedByPref).map(([pref, prefCards]) => {
       const areaName = prefCards[0]?.area || '';
       return `
         <div class="prefecture-section" id="sec-${encodeId(pref)}">
@@ -950,21 +978,24 @@ function renderCards() {
 function gridCard(c) {
   const emoji = getEmoji(c.area);
   const imgSrc = c.imageUrl || '';
-  const imgHtml = imgSrc ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.style.display='none'">` : '';
-  const transferMark = c.transfer ? `<div class="transfer-mark" title="譲渡">TR</div>` : '';
-  const acqBadge = c.acquired ? `<span class="badge acquired">取得済</span>` : '';
-  const lotBadge = c.lot ? `<span class="badge">LOT:${c.lot}</span>` : '';
-  const acquireStr = c.acquireDate ? c.acquireDate : '';
+  const imgContent = imgSrc
+    ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.outerHTML='<span class=\'card-emoji\'>${emoji}</span>'">`
+    : `<span class="card-emoji">${emoji}</span>`;
+  const transferMark = c.transfer ? `<div class="transfer-mark">譲渡</div>` : '';
+  const acquiredMark = c.acquired ? `<div class="card-badge-tl">取得済</div>` : '';
 
   return `
     <div class="card-item">
+      ${acquiredMark}
       ${transferMark}
-      <div class="card-circle">${imgHtml}<span class="card-fallback-emoji" style="position:absolute">${emoji}</span></div>
-      <div class="card-city">${c.city}</div>
-      <div class="card-code">${c.code} · 第${c.dan}弾</div>
-      <div class="card-date">${c.releaseDate || '—'}</div>
-      ${acquireStr ? `<div class="card-acquire-date">📅 ${acquireStr}</div>` : ''}
-      <div class="card-badges">${acqBadge}${lotBadge}</div>
+      <div class="card-img-wrap">${imgContent}</div>
+      <div class="card-title-row">
+        <span class="card-city">${c.city}</span>
+        <span class="card-code">${c.code}</span>
+      </div>
+      <div class="card-dan">第${c.dan}弾</div>
+      ${c.acquireDate ? `<div class="card-acquire-date">${c.acquireDate}</div>` : '<div class="card-acquire-date" style="color:var(--muted)">—</div>'}
+      ${c.lot ? `<div class="card-lot">LOT: ${c.lot}</div>` : ''}
     </div>`;
 }
 
@@ -976,17 +1007,15 @@ function listCard(c) {
 
   return `
     <div class="list-item" style="position:relative">
-      ${c.transfer ? `<div class="transfer-mark">TR</div>` : ''}
+      ${c.transfer ? `<div class="transfer-mark" style="top:50%;transform:translateY(-50%)">譲渡</div>` : ''}
       <div class="list-circle">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;padding:4px;filter:brightness(0.85)" onerror="this.style.display='none'">` : ''}
-        <span style="position:absolute;font-size:1rem">${emoji}</span>
+        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;filter:saturate(0.8)" onerror="this.outerHTML='<span style=\'font-size:1rem\'>${emoji}</span>'">` : `<span style="font-size:1rem">${emoji}</span>`}
       </div>
       <div>
         <div class="list-city">${c.city}</div>
         <div class="list-meta">
           <span>${c.code}</span>
           <span>第${c.dan}弾</span>
-          <span>${c.releaseDate}</span>
           ${acqBadge}
         </div>
       </div>
