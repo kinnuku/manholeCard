@@ -256,11 +256,38 @@
 
   /* Controls */
   .controls {
+    margin-bottom: 1.5rem;
+  }
+
+  .controls-top {
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .controls-filters {
+    display: flex;
+    gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
+  }
+
+  .clear-btn {
+    padding: 0.6rem 0.9rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .clear-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
   }
 
   .search-box {
@@ -442,29 +469,29 @@
 
   .card-code {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    margin-bottom: 2px;
+    font-size: 0.65rem;
+    color: #fff;
+    margin-bottom: 1px;
   }
 
   .card-dan {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.65rem;
     color: var(--text);
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .card-acquire-date {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.65rem;
     color: var(--accent);
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .card-lot {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
+    font-size: 0.65rem;
+    color: #fff;
   }
 
   /* Badges below card info */
@@ -517,10 +544,10 @@
   .list-meta span {
     display: inline-block;
   }
-  .list-meta .meta-code { width: 56px; }
-  .list-meta .meta-dan  { width: 40px; }
-  .list-meta .meta-date { width: 90px; }
-  .list-meta .meta-lot  { width: 36px; }
+  .list-meta .meta-code { width: 56px; color: #fff; }
+  .list-meta .meta-dan  { width: 44px; color: var(--text); }
+  .list-meta .meta-lot  { width: 36px; color: #fff; }
+  .list-meta .meta-date { display: block; color: var(--accent); margin-top: 2px; font-size: 0.68rem; }
 
   .list-badges {
     display: flex;
@@ -696,28 +723,39 @@
   </div>
 
   <div class="controls">
-    <input type="text" class="search-box" id="search" placeholder="🔍  検索: 市区町村、都道府県...">
-    <select class="filter-select" id="filter-area">
-      <option value="">全エリア</option>
-    </select>
-    <select class="filter-select" id="filter-pref">
-      <option value="">全都道府県</option>
-    </select>
-    <select class="filter-select" id="filter-year">
-      <option value="">全年</option>
-    </select>
-    <select class="filter-select" id="filter-acquired">
-      <option value="">全カード</option>
-      <option value="yes">取得済みのみ</option>
-      <option value="no">未取得のみ</option>
-    </select>
-    <select class="filter-select" id="sort-select">
-      <option value="date-desc">取得日新しい順</option>
-      <option value="date-asc">取得日古い順</option>
-    </select>
-    <div class="view-toggle">
-      <button class="view-btn active" id="view-grid" onclick="setView('grid')" title="グリッド">⊞</button>
-      <button class="view-btn" id="view-list" onclick="setView('list')" title="リスト">☰</button>
+    <div class="controls-top">
+      <input type="text" class="search-box" id="search" placeholder="🔍  検索: 市区町村、都道府県...">
+      <div class="view-toggle">
+        <button class="view-btn active" id="view-grid" onclick="setView('grid')" title="グリッド">⊞</button>
+        <button class="view-btn" id="view-list" onclick="setView('list')" title="リスト">☰</button>
+      </div>
+    </div>
+    <div class="controls-filters">
+      <select class="filter-select" id="filter-area">
+        <option value="">全エリア</option>
+      </select>
+      <select class="filter-select" id="filter-pref">
+        <option value="">全都道府県</option>
+      </select>
+      <select class="filter-select" id="filter-year">
+        <option value="">全年</option>
+      </select>
+      <select class="filter-select" id="filter-acquired">
+        <option value="">全カード</option>
+        <option value="yes">取得済みのみ</option>
+        <option value="no">未取得のみ</option>
+      </select>
+      <select class="filter-select" id="filter-transfer">
+        <option value="">譲渡フィルター</option>
+        <option value="yes">譲渡のみ</option>
+        <option value="no">譲渡なし</option>
+      </select>
+      <select class="filter-select" id="sort-select">
+        <option value="pref-asc">都道府県順</option>
+        <option value="date-desc">取得日新しい順</option>
+        <option value="date-asc">取得日古い順</option>
+      </select>
+      <button class="clear-btn" onclick="clearFilters()">✕ 全解除</button>
     </div>
   </div>
 
@@ -914,9 +952,10 @@ function getFilteredCards() {
   const search = document.getElementById('search').value.toLowerCase();
   const area   = document.getElementById('filter-area').value;
   const pref   = document.getElementById('filter-pref').value;
-  const acq    = document.getElementById('filter-acquired').value;
-  const year   = document.getElementById('filter-year').value;
-  const sort   = document.getElementById('sort-select').value;
+  const acq      = document.getElementById('filter-acquired').value;
+  const year     = document.getElementById('filter-year').value;
+  const transfer = document.getElementById('filter-transfer').value;
+  const sort     = document.getElementById('sort-select').value;
 
   let cards = allCards.filter(c => {
     const matchSearch = !search ||
@@ -928,16 +967,18 @@ function getFilteredCards() {
     const matchPref = !pref || c.pref === pref;
     const matchAcq  = !acq || (acq === 'yes' ? c.acquired : !c.acquired);
     const matchYear = !year || c.acquireYear === year;
-    return matchSearch && matchArea && matchPref && matchAcq && matchYear;
+    const matchTransfer = !transfer || (transfer === 'yes' ? c.transfer : !c.transfer);
+    return matchSearch && matchArea && matchPref && matchAcq && matchYear && matchTransfer;
   });
 
   cards.sort((a, b) => {
     if (sort === 'date-desc') return (b.acquireDate || '').localeCompare(a.acquireDate || '');
     if (sort === 'date-asc')  return (a.acquireDate || '').localeCompare(b.acquireDate || '');
-    // default: north to south
+    // pref-asc (default): north to south
     const ai = PREF_ORDER.indexOf(a.pref);
     const bi = PREF_ORDER.indexOf(b.pref);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    if (ai !== bi) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    return a.no - b.no;
   });
 
   return cards;
@@ -973,7 +1014,7 @@ function renderCards() {
           <div class="prefecture-header" data-sec="${idx}">
             <span class="pref-area">${areaName}</span>
             <span class="prefecture-name">${pref}</span>
-            <span class="prefecture-count">${prefCards.length} CARDS</span>
+            <span class="prefecture-count">${prefCards.filter(c=>c.acquired).length}/${prefCards.length}</span>
             <span class="collapse-icon">▼</span>
           </div>
           <div class="cards-grid">
@@ -1033,8 +1074,8 @@ function listCard(c) {
         <div class="list-meta">
           <span class="meta-code">${c.code}</span>
           <span class="meta-dan">第${c.dan}弾</span>
-          <span class="meta-date">${c.acquireDate || '—'}</span>
           <span class="meta-lot">${c.lot || ''}</span>
+          <span class="meta-date">${c.acquireDate || '—'}</span>
         </div>
       </div>
       <div class="list-badges">${acqBadge}${trnBadge}</div>
@@ -1093,7 +1134,20 @@ document.getElementById('filter-area').addEventListener('change', () => {
 document.getElementById('filter-pref').addEventListener('change', renderCards);
 document.getElementById('filter-year').addEventListener('change', renderCards);
 document.getElementById('filter-acquired').addEventListener('change', renderCards);
+document.getElementById('filter-transfer').addEventListener('change', renderCards);
 document.getElementById('sort-select').addEventListener('change', renderCards);
+
+// ===== CLEAR FILTERS =====
+function clearFilters() {
+  document.getElementById('search').value = '';
+  document.getElementById('filter-area').value = '';
+  document.getElementById('filter-pref').value = '';
+  document.getElementById('filter-year').value = '';
+  document.getElementById('filter-acquired').value = '';
+  document.getElementById('filter-transfer').value = '';
+  document.getElementById('sort-select').value = 'pref-asc';
+  renderCards();
+}
 
 // ===== INIT =====
 loadData();
