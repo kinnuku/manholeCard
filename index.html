@@ -382,6 +382,7 @@
     transition: background 0.2s;
     position: relative;
     overflow: hidden;
+    text-align: center;
   }
 
   .card-item::before {
@@ -403,7 +404,7 @@
     max-height: 120px;
     margin-bottom: 0.6rem;
     border: 1px solid var(--border);
-    background: var(--bg);
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -433,6 +434,7 @@
   /* Card info below image */
   .card-info {
     padding: 0 2px;
+    text-align: center;
   }
 
   .card-city {
@@ -474,6 +476,7 @@
     gap: 4px;
     margin-top: 6px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .badge {
@@ -504,7 +507,7 @@
 
   .list-item {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 72px 1fr auto;
     gap: 1rem;
     align-items: center;
     padding: 0.65rem 1rem;
@@ -516,6 +519,29 @@
 
   .list-item:last-child { border-bottom: none; }
   .list-item:hover { background: var(--surface2); }
+
+  .list-thumb {
+    width: 72px;
+    height: 48px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: transparent;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .list-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: saturate(0.8);
+    transition: filter 0.3s;
+  }
+
+  .list-item:hover .list-thumb img { filter: saturate(1); }
 
   .list-circle {
     width: 36px;
@@ -988,8 +1014,8 @@ function listCard(c) {
   return `
     <div class="list-item" style="position:relative">
       ${c.transfer ? `<div class="transfer-mark" style="top:50%;transform:translateY(-50%)">譲渡</div>` : ''}
-      <div class="list-circle">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;filter:saturate(0.8)" onerror="this.outerHTML='<span style=\'font-size:1rem\'>${emoji}</span>'">` : `<span style="font-size:1rem">${emoji}</span>`}
+      <div class="list-thumb">
+        ${imgSrc ? `<img src="${imgSrc}" alt="${c.city}" onerror="this.outerHTML='<span style=\'font-size:1rem\'>${emoji}</span>'">` : `<span style="font-size:1rem">${emoji}</span>`}
       </div>
       <div>
         <div class="list-city">${c.city}</div>
